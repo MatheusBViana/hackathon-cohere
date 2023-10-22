@@ -9,6 +9,18 @@ import cohere
 import requests
 from PIL import Image
 
+def unique(list1):
+ 
+    # initialize a null list
+    unique_list = []
+ 
+    # traverse for all elements
+    for x in list1:
+        # check if exists in unique_list or not
+        if x not in unique_list:
+            unique_list.append(x)
+    return unique_list
+
 st.title("Image2Playlist")
 
 imagem1 = {
@@ -62,7 +74,7 @@ csv_file_path = 'train.csv'
 text_column_name = 'Lyrics'  # Replace with the actual column name
 
 # Initialize the Cohere client with your API key
-co = cohere.Client('*')
+co = cohere.Client('L41u8TnPpclKHjF0jJCxjD0SZ8O5yFQOaXoTibRL')
 
 # Function to embed text data
 def embed_text(text_data, model='small'):
@@ -127,20 +139,21 @@ if generate_button:
             dist_list.append([dist,name_data[i],i,artist_data[i]])
         i+=1
     dist_list=sorted(dist_list, key=lambda x: x[0])
+
     songs=[]
     for d in dist_list[0:200]:
         d[0]=round(d[0],2)
         songs.append(text_data[d[2]])
 
 
-    unique_list=[]
-    for item in songs:
-        if item not in unique_list:
-            unique_list.append(item)
-
+    # unique_list=[]
+    # for item in songs:
+    #     if item not in unique_list:
+    #         unique_list.append(item)
+    songs=unique(songs)
     query = "What are the lyrics with mood most similar to '"+text_prompt+"'"
     print(query)
-    results = co.rerank(query=query, documents=unique_list, top_n=10, model='rerank-english-v2.0') # Change top_n to change the number of results returned. If top_n is not passed, all results will be returned.
+    results = co.rerank(query=query, documents=songs, top_n=10, model='rerank-english-v2.0') # Change top_n to change the number of results returned. If top_n is not passed, all results will be returned.
     st.header("Músicas mais parecidas:")
     for idx, r in enumerate(results):
         st.write(f"Song: {dist_list[r.index][1]} - {dist_list[r.index][3]}")
