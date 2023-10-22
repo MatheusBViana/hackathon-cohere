@@ -62,7 +62,7 @@ csv_file_path = 'train.csv'
 text_column_name = 'Lyrics'  # Replace with the actual column name
 
 # Initialize the Cohere client with your API key
-co = cohere.Client('L41u8TnPpclKHjF0jJCxjD0SZ8O5yFQOaXoTibRL')
+co = cohere.Client('*')
 
 # Function to embed text data
 def embed_text(text_data, model='small'):
@@ -89,16 +89,6 @@ if generate_button:
 
     # Call the function to read the CSV and embed the text data
     embeddings = read_csv_and_embed(csv_file_path, text_column_name)
-    # import pickle
-
-    # Função para carregar os embeddings a partir do arquivo pickle
-    # def load_embeddings_from_pickle(pickle_file_path):
-    #     with open(pickle_file_path, 'rb') as file:
-    #         embeddings = pickle.load(file)
-    #     return embeddings
-
-    # embeddings = pd.read_pickle('embed.pkl')
-    
     df = pd.read_csv(csv_file_path, nrows=15000)
     novo_df=df.drop(columns=['Lyrics'])
     novo_df.to_pickle('train_novo.csv')
@@ -110,52 +100,16 @@ if generate_button:
     name_data = df['Song'].tolist()
 
     text_data = df[text_column_name].tolist()
-    # Check if embeddings is empty or None
-
-    # if embeddings is None or not embeddings:
-
-    #     print("Embeddings are empty or None.")
-    # else:
-
-    #     # Combine the embeddings for each artist
-    #     lyrics_embedding = np.vstack(embeddings)
-
-    #     # Apply PCA to reduce the dimensionality
-    #     pca = PCA(n_components=500)  # Specify the number of components you want
-    #     reduced_embeddings = pca.fit_transform(lyrics_embedding).tolist()
-    #     # reduced_embeddings = pd.read_pickle('embed.pkl')
-    #     reduced_embeddings=lyrics_embedding.tolist()
-    #     print(sum(pca.explained_variance_ratio_))
-    #     # Print the reduced embeddings
-    #     # print(reduced_embeddings)
-    #     prompt=reduced_embeddings[-1]
-    #     prompt=np.array(prompt)
-    #     reduced_embeddings.pop()
-    #     mindist = 100000
-    #     i=0
-    #     min_id=-1
-    #     dist_list=[]
-    #     for emb in reduced_embeddings:
-    #         dist = np.linalg.norm(np.array(emb)-prompt)
-    #         dist_list.append([dist,name_data[i],i,artist_data[i]])
-    #         i+=1
-    #     dist_list=sorted(dist_list, key=lambda x: x[0])
-    #     songs=[]
-    #     for d in dist_list[0:200]:
-    #         #print(round(d[0],2),d[1])
-    #         d[0]=round(d[0],2)
-    #         songs.append(text_data[d[2]])
+    
             
     lyrics_embedding = pd.read_pickle("embed.pkl").values.tolist()
     prompt_embedding = np.vstack(embed_text([text_prompt]))
         
-        # Apply PCA to reduce the dimensionality
+    # Apply PCA to reduce the dimensionality
     pca = PCA(n_components=500)  # Specify the number of components you want
     lyrics_embedding.append(prompt_embedding[0])
-    #pd.DataFrame(data=lyrics_embedding).to_pickle("embed.pkl")
         
     reduced_embeddings = pca.fit_transform(lyrics_embedding)
-    #reduced_embeddings=pd.read_pickle("embed.pkl")
 
         
     reduced_embeddings=reduced_embeddings.tolist()
@@ -183,7 +137,6 @@ if generate_button:
     for item in songs:
         if item not in unique_list:
             unique_list.append(item)
-    #print(text_data[dist_list[0][2]])
 
     query = "What are the lyrics with mood most similar to '"+text_prompt+"'"
     print(query)
